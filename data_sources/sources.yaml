@@ -1,0 +1,47 @@
+# ExamSetu — Official notification source configuration
+# IMPORTANT: Only official government websites. No aggregator sites (SarkariResult etc.)
+
+sources:
+  - id: upsssc
+    name: "UPSSSC"
+    full_name: "Uttar Pradesh Subordinate Services Selection Commission"
+    base_url: "https://upsssc.gov.in"
+    notification_pages:
+      - url: "https://upsssc.gov.in/AllNotifications.aspx"
+        type: "listing"
+        description: "All notifications page with PDF links"
+      - url: "https://upsssc.gov.in/AllAdvertisement.aspx"
+        type: "listing"
+        description: "Live advertisements page"
+    pdf_link_patterns:
+      - "*.pdf"
+      - "*/Upload/*"
+    rate_limit_seconds: 2
+    enabled: true
+
+  - id: uppbpb
+    name: "UP Police"
+    full_name: "UP Police Recruitment & Promotion Board"
+    base_url: "https://uppbpb.gov.in"
+    notification_pages:
+      - url: "https://uppbpb.gov.in"
+        type: "homepage"
+        description: "Homepage with notification links"
+    pdf_link_patterns:
+      - "*.pdf"
+    rate_limit_seconds: 2
+    enabled: true
+
+  - id: ssc
+    name: "SSC"
+    full_name: "Staff Selection Commission"
+    base_url: "https://ssc.gov.in"
+    notification_pages:
+      - url: "https://ssc.gov.in/noticeboardarchive"
+        type: "listing"
+        description: "Notice board archive with all notifications"
+    pdf_link_patterns:
+      - "*.pdf"
+      - "*/noticeboardarchive/*"
+    rate_limit_seconds: 2
+    enabled: true

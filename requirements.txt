@@ -1,0 +1,24 @@
+# Web scraping
+requests>=2.32,<3
+beautifulsoup4>=4.12,<5
+
+# PDF processing
+pytesseract>=0.3,<1
+Pillow>=10.0,<12
+pymupdf>=1.25,<2
+
+# Database
+supabase>=2.31,<3
+
+# Config
+python-dotenv>=1.1,<2
+pyyaml>=6.0,<7
+
+# LLM clients (OpenAI-compatible for Groq/Cerebras/Mistral)
+openai>=1.40,<2
+
+# Gemini embeddings
+google-genai>=1,<2
+
+# Testing
+pytest>=8.0,<9
