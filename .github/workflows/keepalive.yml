@@ -1,0 +1,29 @@
+name: Supabase Keepalive
+
+on:
+  schedule:
+    - cron: '0 8 */3 * *'   # Every 3 days at 8:00 AM UTC
+  workflow_dispatch: {}       # Manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Ping Supabase to prevent free-tier inactivity pause
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          echo "Pinging Supabase to prevent 7-day inactivity pause..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/notifications?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ Supabase is alive (HTTP $HTTP_STATUS)"
+          else
+            echo "⚠️ Supabase responded with HTTP $HTTP_STATUS"
+          fi
