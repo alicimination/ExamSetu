@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Initialize Supabase with service role key to bypass RLS for bot registrations
+// Clean environment variable initialization (no hardcoded secrets)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
 async function sendTelegramMessage(chatId: number | string, text: string, replyMarkup?: any) {
-  if (!TELEGRAM_BOT_TOKEN) return;
+  if (!TELEGRAM_BOT_TOKEN) {
+    console.error("TELEGRAM_BOT_TOKEN environment variable is missing!");
+    return;
+  }
   const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
   try {
-    await fetch(url, {
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -22,18 +25,30 @@ async function sendTelegramMessage(chatId: number | string, text: string, replyM
         reply_markup: replyMarkup,
       }),
     });
+    const resData = await res.json();
+    if (!resData.ok) {
+      console.error("Telegram API Error:", resData);
+    }
   } catch (err) {
     console.error("Error sending Telegram message:", err);
   }
 }
 
+export async function GET() {
+  return NextResponse.json({
+    status: "Telegram webhook is live and operational!",
+    bot: "examsetu_bot",
+    timestamp: new Date().toISOString(),
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const update = await req.json();
-    const message = update.message || update.edited_message;
+    const message = update.message || update.edited_message || update.channel_post;
 
     if (!message || !message.chat) {
-      return NextResponse.json({ status: "ok" });
+      return NextResponse.json({ status: "ok", reason: "no_chat" });
     }
 
     const chatId = message.chat.id;
@@ -54,24 +69,20 @@ export async function POST(req: NextRequest) {
 
       if (error) {
         console.error("Error registering user in Supabase:", error);
-        await sendTelegramMessage(
-          chatId,
-          `⚠️ <b>Registration Error</b>\nFailed to register user. Please try again later.`
-        );
-      } else {
-        await sendTelegramMessage(
-          chatId,
-          `🎯 <b>Welcome to ExamSetu Job Alerts, ${username}!</b>\n\n` +
-            `✅ You are now <b>successfully registered & subscribed</b> to receive instant updates on Indian government exams (UPSSSC, UP Police, SSC CGL, etc.).\n\n` +
-            `🔍 Visit our portal to check your instant eligibility:\n` +
-            `https://examsetu.vercel.app/\n\n` +
-            `<i>You will receive direct Telegram alerts whenever a new matching job notification is released!</i>`
-        );
       }
+
+      await sendTelegramMessage(
+        chatId,
+        `🎯 <b>Welcome to ExamSetu Job Alerts, ${username}!</b>\n\n` +
+          `✅ You are now <b>successfully registered & subscribed</b> to receive instant updates on Indian government exams (UPSSSC, UP Police, SSC CGL, etc.).\n\n` +
+          `🔍 Visit our portal to check your instant eligibility:\n` +
+          `https://exam-setu-virid.vercel.app/\n\n` +
+          `<i>You will receive direct Telegram alerts whenever a new matching job notification is released!</i>`
+      );
     } else if (text.startsWith("/check")) {
       await sendTelegramMessage(
         chatId,
-        `🔍 <b>Instant Eligibility Checker</b>\n\nVisit our web application to test your eligibility against official government rules:\nhttps://examsetu.vercel.app/`
+        `🔍 <b>Instant Eligibility Checker</b>\n\nVisit our web application to test your eligibility against official government rules:\nhttps://exam-setu-virid.vercel.app/`
       );
     } else if (text.startsWith("/help")) {
       await sendTelegramMessage(
@@ -85,7 +96,8 @@ export async function POST(req: NextRequest) {
     } else {
       await sendTelegramMessage(
         chatId,
-        `Hello ${username}! 👋\n\nUse /register to subscribe to government job alerts or visit https://examsetu.vercel.app for eligibility checks.`
+        `Hello ${username}! 👋\n\n` +
+          `Use /register to subscribe to government job alerts or visit https://exam-setu-virid.vercel.app/ for instant eligibility checks.`
       );
     }
 
