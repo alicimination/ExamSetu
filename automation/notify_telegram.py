@@ -107,7 +107,7 @@ def check_user_match(user: dict, rule: dict) -> bool:
         "post-graduation": 4, "post-graduate": 4, "post graduation": 4,
     }
 
-    user_edu = user.get("education", "").lower().strip()
+    user_edu = (user.get("education") or "").lower().strip()
     req_edu = (rule.get("education_requirement") or "").lower().strip()
 
     user_edu_level = edu_hierarchy.get(user_edu, 0)
@@ -116,7 +116,7 @@ def check_user_match(user: dict, rule: dict) -> bool:
         if key in req_edu:
             req_edu_level = max(req_edu_level, level)
 
-    if req_edu_level > 0 and user_edu_level < req_edu_level:
+    if user_edu and req_edu_level > 0 and user_edu_level < req_edu_level:
         return False  # User doesn't meet education requirement
 
     # Check domicile
