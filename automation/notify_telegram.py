@@ -158,22 +158,22 @@ def check_user_match(user: dict, rule: dict) -> bool:
 
 def notify_matching_users():
     """
-    Find verified eligibility rules that haven't been notified yet,
+    Find eligibility rules (verified, pending_review, or draft) that haven't been notified yet,
     match them against user profiles, and send Telegram alerts.
     """
     supabase = get_supabase()
 
-    # Get unnotified verified rules
+    # Get all unnotified rules regardless of verification status
     rules_result = supabase.table("eligibility_rules").select(
         "*, notifications(*)"
-    ).eq("status", "verified").eq("notified", False).execute()
+    ).eq("notified", False).execute()
 
     rules = rules_result.data or []
     if not rules:
-        logger.info("No new verified rules to notify about")
+        logger.info("No new unnotified rules to notify about")
         return
 
-    logger.info(f"Found {len(rules)} unnotified verified rule(s)")
+    logger.info(f"Found {len(rules)} unnotified rule(s)")
 
     # Get all opted-in users
     users_result = supabase.table("user_profiles").select("*").eq(
