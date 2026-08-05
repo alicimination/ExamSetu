@@ -339,8 +339,30 @@ export default function HomePage() {
     }
   }
 
+  const jsonLdItemList = useMemo(() => {
+    if (!notifications || notifications.length === 0) return null;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://exam-setu-virid.vercel.app";
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Latest Sarkari Job & Exam Notifications",
+      itemListElement: notifications.slice(0, 20).map((n, idx) => ({
+        "@type": "ListItem",
+        position: idx + 1,
+        name: getOpenPositionTitle(n),
+        url: `${baseUrl}/details?id=${n.id}`,
+      })),
+    };
+  }, [notifications]);
+
   return (
     <>
+      {jsonLdItemList && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdItemList) }}
+        />
+      )}
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
