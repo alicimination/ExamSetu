@@ -2,20 +2,83 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://exam-setu-virid.vercel.app";
+
 export const metadata: Metadata = {
-  title: "ExamSetu — Sarkari Exam Eligibility & Doubt Assistant",
-  description:
-    "Track UPSSSC, UP Police, SSC CGL notifications. Check eligibility instantly. Ask doubts via AI chat with source citations. Free alerts on Telegram.",
-  keywords: [
-    "sarkari exam", "government job", "UPSSSC", "UP Police", "SSC CGL",
-    "eligibility checker", "exam notification", "sarkari result",
-  ],
-  openGraph: {
-    title: "ExamSetu — Your Sarkari Exam Assistant",
-    description: "Check eligibility, track notifications, ask doubts — all free.",
-    type: "website",
-    locale: "en_IN",
+  metadataBase: new URL(baseUrl),
+  title: {
+    default: "ExamSetu — Sarkari Exam Eligibility & Government Job Tracker",
+    template: "%s | ExamSetu",
   },
+  description:
+    "ExamSetu is India's leading automated government exam tracker. Check instant eligibility for UPSSSC, UP Police, SSC CGL, Sarkari Results, official PDF notices, and ask doubts with AI.",
+  keywords: [
+    "ExamSetu",
+    "examsetu",
+    "sarkari",
+    "sarkari result",
+    "government exams",
+    "sarkari naukri",
+    "UPSSSC eligibility",
+    "UP Police bharti 2026",
+    "SSC CGL qualification",
+    "eligibility checker",
+    "exam notification",
+    "government job tracking",
+    "examsetu bot",
+  ],
+  authors: [{ name: "ExamSetu Team" }],
+  creator: "ExamSetu",
+  publisher: "ExamSetu",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "ExamSetu — Sarkari Exam Eligibility & Government Job Tracker",
+    description: "Instant eligibility checking, latest Sarkari notifications, official PDFs, and AI doubt resolution for Indian government exams.",
+    url: baseUrl,
+    siteName: "ExamSetu",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ExamSetu — Sarkari Exam Eligibility & Government Job Tracker",
+    description: "Check eligibility instantly for UPSSSC, UP Police, SSC CGL & Sarkari job notifications.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+};
+
+const jsonLdWebsite = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "ExamSetu",
+  alternateName: ["examsetu", "Exam Setu", "ExamSetu Sarkari"],
+  url: baseUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${baseUrl}/?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+
+const jsonLdOrganization = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "ExamSetu",
+  url: baseUrl,
+  logo: `${baseUrl}/favicon.ico`,
+  sameAs: ["https://t.me/examsetu_bot"],
 };
 
 export default function RootLayout({
@@ -25,6 +88,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
+        />
+      </head>
       <body>
         <div className="page-wrapper">
           {/* ── Navbar ── */}
